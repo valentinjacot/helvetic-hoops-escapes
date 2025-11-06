@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Game {
   id: string;
@@ -90,13 +91,15 @@ const availabilityColors = {
   low: "bg-red-500"
 };
 
-const availabilityText = {
-  high: "Good Availability",
-  medium: "Limited Spots",
-  low: "Almost Full"
-};
-
 const GamesSection = () => {
+  const { t, language } = useLanguage();
+  
+  const availabilityText = {
+    high: t("games.high"),
+    medium: t("games.medium"),
+    low: t("games.low")
+  };
+  
   const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -106,10 +109,10 @@ const GamesSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 space-y-4">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-            Upcoming Games
+            {t("games.title")}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose from our selection of premium EuroLeague matches in Milan and Munich
+            {t("games.subtitle")}
           </p>
         </div>
 
@@ -138,7 +141,7 @@ const GamesSection = () => {
               <CardContent className="space-y-3">
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4 mr-2 text-primary" />
-                  {new Date(game.date).toLocaleDateString('en-GB', { 
+                  {new Date(game.date).toLocaleDateString(language === "de" ? 'de-DE' : 'en-GB', { 
                     weekday: 'long', 
                     day: 'numeric', 
                     month: 'long', 
@@ -151,11 +154,11 @@ const GamesSection = () => {
                 </div>
                 <div className="pt-2 border-t border-border">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Package from</span>
+                    <span className="text-sm text-muted-foreground">{t("games.packageFrom")}</span>
                     <span className="text-2xl font-bold text-primary">{game.estimatedPrice}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    *Non-binding estimate, final price depends on options
+                    {t("games.estimate")}
                   </p>
                 </div>
               </CardContent>
@@ -165,7 +168,7 @@ const GamesSection = () => {
                   onClick={scrollToBooking}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Request Package
+                  {t("games.requestPackage")}
                 </Button>
               </CardFooter>
             </Card>
@@ -174,7 +177,7 @@ const GamesSection = () => {
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
-            Don't see your preferred match? Contact us for custom packages!
+            {t("games.custom")}
           </p>
         </div>
       </div>

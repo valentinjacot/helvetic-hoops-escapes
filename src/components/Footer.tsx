@@ -1,7 +1,10 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
+  const { t } = useLanguage();
+  
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
@@ -9,22 +12,22 @@ const Footer = () => {
           <div className="space-y-4">
             <img src={logo} alt="HelveticHoops Travel" className="w-24 h-24" />
             <p className="text-sm text-muted-foreground">
-              Premium basketball travel experiences from Switzerland to Europe's finest EuroLeague venues.
+              {t("footer.description")}
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t("footer.quickLinks")}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#games" className="hover:text-primary transition-colors">Upcoming Games</a></li>
-              <li><a href="#booking" className="hover:text-primary transition-colors">Book Now</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">How It Works</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
+              <li><a href="#games" className="hover:text-primary transition-colors">{t("footer.upcomingGames")}</a></li>
+              <li><a href="#booking" className="hover:text-primary transition-colors">{t("footer.bookNow")}</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors">{t("footer.howItWorks")}</a></li>
+              <li><a href="#" className="hover:text-primary transition-colors">{t("footer.aboutUs")}</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Contact</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t("footer.contact")}</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-center">
                 <Mail className="h-4 w-4 mr-2 text-primary" />
@@ -42,7 +45,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Follow Us</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t("footer.followUs")}</h3>
             <div className="flex space-x-4">
               <a 
                 href="https://facebook.com" 
@@ -70,19 +73,19 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              Stay updated with the latest packages and exclusive offers!
+              {t("footer.stayUpdated")}
             </p>
           </div>
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} HelveticHoops Travel. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {t("footer.rights")}</p>
           <div className="flex justify-center space-x-4 mt-2">
-            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-primary transition-colors">{t("footer.privacy")}</a>
             <span>•</span>
-            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-primary transition-colors">{t("footer.terms")}</a>
             <span>•</span>
-            <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
+            <a href="#" className="hover:text-primary transition-colors">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>
