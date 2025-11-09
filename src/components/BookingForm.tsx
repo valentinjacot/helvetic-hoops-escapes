@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Calculator, Send } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_ENDPOINTS } from "@/config/api";
 
 interface PriceEstimate {
   room: number;
@@ -34,32 +35,43 @@ const BookingForm = () => {
     message: ""
   });
 
-  const calculatePrice = () => {
+  const calculatePrice = async () => {
     setCalculating(true);
     
-    setTimeout(() => {
-      const roomPrices = { single: 150, double: 100 };
-      const transportPrices = { economy: 80, first: 150 };
-      const ticketPrices = { standard: 120, premium: 200, vip: 350 };
+    try {
+      const response = await fetch(API_ENDPOINTS.calculatePrice, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomType: formData.roomType,
+          transportClass: formData.transportClass,
+          seatLevel: formData.seatLevel,
+          guests: parseInt(formData.guests),
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to calculate price');
       
-      const room = roomPrices[formData.roomType as keyof typeof roomPrices] || 0;
-      const transport = transportPrices[formData.transportClass as keyof typeof transportPrices] || 0;
-      const ticket = ticketPrices[formData.seatLevel as keyof typeof ticketPrices] || 0;
-      
-      const guests = parseInt(formData.guests) || 1;
-      const total = (room + transport + ticket) * guests;
-      
-      setPriceEstimate({ room, transport, ticket, total });
-      setCalculating(false);
+      const data = await response.json();
+      setPriceEstimate(data);
       
       toast({
         title: t("booking.priceCalc"),
-        description: `${t("booking.estimatedTotal")} ${total}`,
+        description: `${t("booking.estimatedTotal")} CHF ${data.total}`,
       });
-    }, 1000);
+    } catch (error) {
+      console.error('Error calculating price:', error);
+      toast({
+        title: "Error",
+        description: "Failed to calculate price. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setCalculating(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.game) {
@@ -71,23 +83,40 @@ const BookingForm = () => {
       return;
     }
 
-    toast({
-      title: t("booking.submitted"),
-      description: t("booking.response"),
-    });
-    
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      game: "",
-      roomType: "",
-      transportClass: "",
-      seatLevel: "",
-      guests: "1",
-      message: ""
-    });
-    setPriceEstimate(null);
+    try {
+      const response = await fetch(API_ENDPOINTS.booking, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Failed to submit booking');
+
+      toast({
+        title: t("booking.submitted"),
+        description: t("booking.response"),
+      });
+      
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        game: "",
+        roomType: "",
+        transportClass: "",
+        seatLevel: "",
+        guests: "1",
+        message: ""
+      });
+      setPriceEstimate(null);
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit booking. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

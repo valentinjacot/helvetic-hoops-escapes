@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_ENDPOINTS } from "@/config/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface Game {
   id: string;
@@ -16,75 +19,6 @@ interface Game {
   availability: "high" | "medium" | "low";
 }
 
-const upcomingGames: Game[] = [
-  {
-    id: "1",
-    homeTeam: "EA7 Emporio Armani Milan",
-    awayTeam: "Real Madrid",
-    date: "2025-12-15",
-    time: "20:30",
-    venue: "Unipol Forum",
-    city: "Milan",
-    estimatedPrice: "From CHF 450",
-    availability: "high"
-  },
-  {
-    id: "2",
-    homeTeam: "FC Bayern Munich",
-    awayTeam: "Panathinaikos",
-    date: "2025-12-18",
-    time: "20:00",
-    venue: "SAP Garden",
-    city: "Munich",
-    estimatedPrice: "From CHF 420",
-    availability: "high"
-  },
-  {
-    id: "3",
-    homeTeam: "EA7 Emporio Armani Milan",
-    awayTeam: "Fenerbahce",
-    date: "2026-01-10",
-    time: "20:45",
-    venue: "Unipol Forum",
-    city: "Milan",
-    estimatedPrice: "From CHF 480",
-    availability: "medium"
-  },
-  {
-    id: "4",
-    homeTeam: "FC Bayern Munich",
-    awayTeam: "Olympiacos",
-    date: "2026-01-22",
-    time: "19:00",
-    venue: "SAP Garden",
-    city: "Munich",
-    estimatedPrice: "From CHF 440",
-    availability: "medium"
-  },
-  {
-    id: "5",
-    homeTeam: "EA7 Emporio Armani Milan",
-    awayTeam: "Barcelona",
-    date: "2026-02-05",
-    time: "20:30",
-    venue: "Unipol Forum",
-    city: "Milan",
-    estimatedPrice: "From CHF 520",
-    availability: "low"
-  },
-  {
-    id: "6",
-    homeTeam: "FC Bayern Munich",
-    awayTeam: "Maccabi Tel Aviv",
-    date: "2026-02-12",
-    time: "20:00",
-    venue: "SAP Garden",
-    city: "Munich",
-    estimatedPrice: "From CHF 410",
-    availability: "high"
-  }
-];
-
 const availabilityColors = {
   high: "bg-green-500",
   medium: "bg-yellow-500",
@@ -93,6 +27,31 @@ const availabilityColors = {
 
 const GamesSection = () => {
   const { t, language } = useLanguage();
+  const { toast } = useToast();
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+  const fetchGames = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.games);
+      if (!response.ok) throw new Error('Failed to fetch games');
+      const data = await response.json();
+      setGames(data);
+    } catch (error) {
+      console.error('Error fetching games:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load games. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const availabilityText = {
     high: t("games.high"),
@@ -116,8 +75,13 @@ const GamesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {upcomingGames.map((game) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {games.map((game) => (
             <Card 
               key={game.id} 
               className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border bg-card"
@@ -172,8 +136,9 @@ const GamesSection = () => {
                 </Button>
               </CardFooter>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground mb-4">
